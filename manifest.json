@@ -1,0 +1,10 @@
+{
+  "name": "School.management.app",
+  "short_name": "School.management.app", 
+  "description": "Al Quran school manegment system",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2196F3",
+  "icons": []
+}
