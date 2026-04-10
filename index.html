@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>School Management System</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    color: white;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    text-align: center;
+}
+
+.card {
+    background: white;
+    color: black;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 15px;
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    border: 1px solid gray;
+}
+
+button {
+    background: #667eea;
+    color: white;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    margin-top: 10px;
+    color: black;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid gray;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginPage" class="card">
+    <h2>Login</h2>
+    <input id="email" placeholder="Email"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+
+<div class="card">
+    <h2>Dashboard</h2>
+    <p>Total Students: <span id="totalStudents">0</span></p>
+    <p>Total Teachers: <span id="totalTeachers">0</span></p>
+</div>
+
+<!-- STUDENTS -->
+<div class="card">
+<h3>Students</h3>
+<input id="studentName" placeholder="Name">
+<button onclick="addStudent()">Add</button>
+
+<table id="studentTable">
+<tr><th>Name</th><th>Action</th></tr>
+</table>
+</div>
+
+<!-- TEACHERS -->
+<div class="card">
+<h3>Teachers</h3>
+<input id="teacherName" placeholder="Name">
+<button onclick="addTeacher()">Add</button>
+
+<table id="teacherTable">
+<tr><th>Name</th><th>Action</th></tr>
+</table>
+</div>
+
+<!-- STUDENT ATTENDANCE -->
+<div class="card">
+<h3>Student Attendance</h3>
+<input id="sName" placeholder="Student Name">
+<select id="sStatus">
+<option>Present</option>
+<option>Absent</option>
+</select>
+<button onclick="markStudentAttendance()">Mark</button>
+
+<table id="sAttendance">
+<tr><th>Name</th><th>Status</th></tr>
+</table>
+</div>
+
+<!-- TEACHER ATTENDANCE -->
+<div class="card">
+<h3>Teacher Attendance</h3>
+<input id="tName" placeholder="Teacher Name">
+<select id="tStatus">
+<option>Present</option>
+<option>Absent</option>
+</select>
+<button onclick="markTeacherAttendance()">Mark</button>
+
+<table id="tAttendance">
+<tr><th>Name</th><th>Status</th></tr>
+</table>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// DATA STORAGE
+let students = JSON.parse(localStorage.getItem("students")) || [];
+let teachers = JSON.parse(localStorage.getItem("teachers")) || [];
+
+// LOGIN
+function login(){
+    let email = document.getElementById("email").value;
+    let pass = document.getElementById("password").value;
+
+    if(email && pass){
+        localStorage.setItem("user", email);
+        document.getElementById("loginPage").style.display="none";
+        document.getElementById("dashboard").style.display="block";
+        loadData();
+    } else {
+        alert("Enter email & password");
+    }
+}
+
+// LOAD DATA
+function loadData(){
+    let sTable = document.getElementById("studentTable");
+    students.forEach((s,i)=>{
+        addRow(sTable, s, "student", i);
+    });
+
+    let tTable = document.getElementById("teacherTable");
+    teachers.forEach((t,i)=>{
+        addRow(tTable, t, "teacher", i);
+    });
+
+    updateCounts();
+}
+
+// ADD STUDENT
+function addStudent(){
+    let name = document.getElementById("studentName").value;
+    students.push(name);
+    localStorage.setItem("students", JSON.stringify(students));
+    location.reload();
+}
+
+// ADD TEACHER
+function addTeacher(){
+    let name = document.getElementById("teacherName").value;
+    teachers.push(name);
+    localStorage.setItem("teachers", JSON.stringify(teachers));
+    location.reload();
+}
+
+// ADD ROW
+function addRow(table, name, type, index){
+    let row = table.insertRow();
+    row.insertCell(0).innerHTML = name;
+    row.insertCell(1).innerHTML = `
+        <button onclick="edit('${type}',${index})">Edit</button>
+        <button onclick="del('${type}',${index})">Delete</button>
+    `;
+}
+
+// DELETE
+function del(type,index){
+    if(type=="student"){
+        students.splice(index,1);
+        localStorage.setItem("students", JSON.stringify(students));
+    } else {
+        teachers.splice(index,1);
+        localStorage.setItem("teachers", JSON.stringify(teachers));
+    }
+    location.reload();
+}
+
+// EDIT
+function edit(type,index){
+    let newName = prompt("Edit Name:");
+    if(type=="student"){
+        students[index] = newName;
+        localStorage.setItem("students", JSON.stringify(students));
+    } else {
+        teachers[index] = newName;
+        localStorage.setItem("teachers", JSON.stringify(teachers));
+    }
+    location.reload();
+}
+
+// ATTENDANCE
+function markStudentAttendance(){
+    let name = document.getElementById("sName").value;
+    let status = document.getElementById("sStatus").value;
+
+    let row = document.getElementById("sAttendance").insertRow();
+    row.insertCell(0).innerHTML = name;
+    row.insertCell(1).innerHTML = status;
+}
+
+function markTeacherAttendance(){
+    let name = document.getElementById("tName").value;
+    let status = document.getElementById("tStatus").value;
+
+    let row = document.getElementById("tAttendance").insertRow();
+    row.insertCell(0).innerHTML = name;
+    row.insertCell(1).innerHTML = status;
+}
+
+// COUNT
+function updateCounts(){
+    document.getElementById("totalStudents").innerText = students.length;
+    document.getElementById("totalTeachers").innerText = teachers.length;
+}
+
+</script>
+
+</body>
+  </html>
